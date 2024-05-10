@@ -1,0 +1,11 @@
+<launch>
+    <param name="rosbag_file" type="string" value="$(find contrast_maximization)/data/rotation3d.bag"/>
+    <param name="events_topic" type="string" value="/dvs/events"/>
+    <param name="width" type="int" value="346"/>
+    <param name="height" type="int" value="260"/>
+    <rosparam param="intrinsic_matrix">[ 200.0, 0.0, 173.0, 0.0, 200.0, 130.0, 0.0, 0.0, 1.0 ]</rosparam>
+
+<!--    <param name="intrinsic_matrix" type="double[]"-->
+<!--           value="[ 200.0, 0.0, 173.0, 0.0, 200.0, 130.0, 0.0, 0.0, 1.0 ]"/>-->
+    <node pkg="contrast_maximization" type="cm_rotation_3d" name="cm_rotation_3d" output="screen"/>
+</launch>

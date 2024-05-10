@@ -1,0 +1,8 @@
+<launch>
+    <param name="rosbag_file" type="string" value="$(find contrast_maximization)/data/rotation3d.bag"/>
+    <param name="events_topic" type="string" value="/dvs/events"/>
+    <param name="width" type="int" value="346"/>
+    <param name="height" type="int" value="260"/>
+    <node pkg="contrast_maximization" type="cm_rotation_3d" name="cm_rotation_3d" output="screen"/>
+    <!--    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find contrast_maximization)/rviz/cm_rotation_3d.rviz"/>-->
+</launch>
