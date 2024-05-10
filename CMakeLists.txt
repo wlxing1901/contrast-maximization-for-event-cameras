@@ -19,8 +19,8 @@ include(${PROJECT_SOURCE_DIR}/cmake/packages.cmake)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-#add_executable(cm_translation_2d src/cm_translation_2d.cpp)
-#target_link_libraries(cm_translation_2d ${third_party_libs})
+add_executable(cm_translation_2d src/cm_translation_2d.cpp)
+target_link_libraries(cm_translation_2d ${third_party_libs})
 
 add_executable(cm_rotation_3d src/cm_rotation_3d.cpp)
 target_link_libraries(cm_rotation_3d ${third_party_libs})

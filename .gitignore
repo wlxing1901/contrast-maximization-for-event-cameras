@@ -1,10 +1,14 @@
 # do not upload pcd_to_bag.cpp
 src/pcd_to_bag.cpp
 src/cm_translation_2d.cpp
-script/**.py
+script/
 cmake-build-debug/
 .idea/
 data/rotation3d.bag
+output/rotation3d/
+output/translation2d/
+**.png
+**.bag
 
 # Prerequisites
 *.d

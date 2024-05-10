@@ -38,9 +38,10 @@ int main(int argc, char **argv) {
     int width, height;
     nh.param<int>("width", width);
     nh.param<int>("height", height);
-    std::string topic_name, rosbag_file;
+    std::string topic_name, rosbag_file, output_path;
     nh.param<std::string>("events_topic", topic_name, "/dvs/events");
     nh.param<std::string>("rosbag_file", rosbag_file, "");
+    nh.param<std::string>("output_path", output_path, "");
     vector<vector<double>> K = {{200.0, 0.0,   173.0},
                                 {0.0,   200.0, 130.0},
                                 {0.0,   0.0,   1.0}};
@@ -61,11 +62,6 @@ int main(int argc, char **argv) {
         return ss.str();
     }(K);
     LOG(INFO) << "events topic: " << topic_name << endl;
-
-    ros::Publisher event_image_pub = nh.advertise<sensor_msgs::Image>("event_image", 10);
-    ros::Publisher event_image_warped_pub = nh.advertise<sensor_msgs::Image>("event_image_warped", 10);
-
-
 
     // read all event_array from rosbag with topic_name
     std::vector<fx::EventArrayPtr> event_array_vec;
@@ -88,7 +84,7 @@ int main(int argc, char **argv) {
         cv::waitKey(10);
     }
 
-
+    int count = 0;
     for (auto &event_array: event_array_vec) {
         LOG(INFO) << "events number: " << event_array->events.size() << endl;
         double omega[3] = {0.2, 0.7, 0.7};
@@ -144,6 +140,10 @@ int main(int argc, char **argv) {
 
         cv::imshow("img_es", img_es);
         cv::imshow("img_warped", img_warped);
+
+        cv::imwrite(output_path + "/img_es_" + to_string(count) + ".png", img_es);
+        cv::imwrite(output_path + "/img_warped_" + to_string(count) + ".png", img_warped);
+        count++;
 
         cv::waitKey(10);
     }
