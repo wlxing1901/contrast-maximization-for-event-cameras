@@ -1,6 +1,6 @@
 # do not upload pcd_to_bag.cpp
 src/pcd_to_bag.cpp
-src/cm_translation_2d.cpp
+#src/cm_translation_2d.cpp
 script/
 cmake-build-debug/
 .idea/

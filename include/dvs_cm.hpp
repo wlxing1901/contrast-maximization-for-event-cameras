@@ -378,39 +378,6 @@ inline double compute_contrast(dv_ros_msgs::EventArrayPtr &es) {
     return var;
 }
 
-/**
- * warp event stream in image plane
- * @param ip_in
- * @param ip_out
- * @param omega
- */
-inline void
-warp_event_stream(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &ip_in,
-                  pcl::PointCloud<pcl::PointXYZRGB>::Ptr &ip_out,
-                  const double *const omega) {
-    ip_out->clear();
-    for (auto &p: ip_in->points) {
-//        double delta_t = -(p.z - 0.05);
-//        double delta_t = -(p.z - 0.1);
-        double delta_t = -p.z;
-        double p_before[3], p_after[3];
-        p_before[0] = p.x;
-        p_before[1] = p.y;
-        p_before[2] = 1.0;
-        double delta_omega[3] = {omega[0] * delta_t,
-                                 omega[1] * delta_t,
-                                 omega[2] * delta_t};
-        ceres::AngleAxisRotatePoint(delta_omega, p_before, p_after);
-        double temp_x = p_after[0] / p_after[2];
-        double temp_y = p_after[1] / p_after[2];
-        pcl::PointXYZRGB temp;
-        temp.x = temp_x;
-        temp.y = temp_y;
-        temp.z = p.z;
-        temp.rgb = p.rgb;
-        ip_out->push_back(temp);
-    }
-}
 
 inline void
 warp_event_stream(const dv_ros_msgs::EventArrayPtr &ip_in, dv_ros_msgs::EventArrayPtr &ip_out,
@@ -459,57 +426,6 @@ warp_event_stream(const fx::EventArrayPtr &ip_in, fx::EventArrayPtr &ip_out,
         ip_out->events.push_back(temp);
     }
 }
-
-
-/**
-* Functor to find optimal rotation angular velocity omega
-*/
-class DVSRotationCamera3D {
-public:
-    bool operator()(const double *const omega, double *const res) const {
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr warped_ip_ = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(
-                new pcl::PointCloud<pcl::PointXYZRGB>);
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr warped_pc_ = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(
-                new pcl::PointCloud<pcl::PointXYZRGB>);
-        warp_event_stream(ip_, warped_ip_, omega);
-        event_stream_image_plane_to_uv(warped_ip_, warped_pc_, K_);
-        res[0] = compute_contrast(warped_pc_);
-        return true;
-    }
-
-    explicit DVSRotationCamera3D(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &ip,
-                                 std::vector<std::vector<double>> &K) :
-            ip_(ip), K_(K) {
-        double sigma = 1.0;
-        for (int i = 0; i < gauss_func_table_size_; i++) {
-            double res = 0.0;
-            res = 1.0 / (2 * M_PI * sigma * sigma) *
-                  exp(-1.0 * (double(i) / 10) / (2.0 * sigma * sigma));
-            gauss_func_table_.push_back(res);
-        }
-    }
-
-private:
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr ip_;
-    std::vector<std::vector<double>> K_;
-
-    std::vector<double> gauss_func_table_;
-    int gauss_func_table_size_ = 200;
-
-    inline double find_gauss_func_table(double x, double y, double x0, double y0, double sigma = 1.0) const {
-        double res = 0.0;
-        double index = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-        index *= 10.0;
-        if (index < gauss_func_table_size_) {
-            // linear interpolation with two side values
-            res = gauss_func_table_[int(index)] +
-                  (gauss_func_table_[int(index) + 1] - gauss_func_table_[index]) * (index - (int) index);
-        } else {
-            res = 0.0;
-        }
-        return res;
-    }
-};
 
 
 /**
